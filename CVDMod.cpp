@@ -7,8 +7,11 @@ const int kNumPrograms = 1;
 
 enum EParams
 {
-  kWet = 0,
+  kRate = 0,
   kDepth,
+  kHighFreq,
+  kLowFreq,
+  kWet,
   kNumParams
 };
 
@@ -17,10 +20,14 @@ enum ELayout
   kWidth = GUI_WIDTH,
   kHeight = GUI_HEIGHT,
 
-  kWetX = 100,
-  kWetY = 100,
-  kDepthX = 200,
+  kRateX = 245,
+  kRateY = 100,
+  kDepthX = 60,
   kDepthY = 100,
+  kHighFreqX = 245,
+  kHighFreqY = 15,
+  kLowFreqX = 60,
+  kLowFreqY = 15,
   kKnobFrames = 60
 };
 
@@ -30,18 +37,24 @@ CVDMod::CVDMod(IPlugInstanceInfo instanceInfo)
   TRACE;
 
   //arguments are: name, defaultVal, minVal, maxVal, step, label
-  GetParam(kWet)->InitDouble("Dry/Wet", 50., 0., 100.0, 0.01, "%");
-  GetParam(kWet)->SetShape(1.);
+  GetParam(kRate)->InitDouble("Rate", 50., 0., 100.0, 1.00, "%");
+  GetParam(kRate)->SetShape(2.);
   GetParam(kDepth)->InitDouble("Depth", 50., 0., 100.0, 1.00, "%");
   GetParam(kDepth)->SetShape(2.);
+  GetParam(kHighFreq)->InitDouble("HighFreq", 1000., 30., 20000.0, 1.00, "Hz");
+  GetParam(kHighFreq)->SetShape(2.);
+  GetParam(kLowFreq)->InitDouble("LowFreq", 1000., 30., 20000.0, 1.00, "Hz");
+  GetParam(kLowFreq)->SetShape(2.);
 
   IGraphics* pGraphics = MakeGraphics(this, kWidth, kHeight);
-  pGraphics->AttachPanelBackground(&COLOR_RED);
+  pGraphics->AttachBackground(BG_ID, BG_FN);
 
   IBitmap knob = pGraphics->LoadIBitmap(KNOB_ID, KNOB_FN, kKnobFrames);
 
-  pGraphics->AttachControl(new IKnobMultiControl(this, kWetX, kWetY, kWet, &knob));
+  pGraphics->AttachControl(new IKnobMultiControl(this, kRateX, kRateY, kRate, &knob));
   pGraphics->AttachControl(new IKnobMultiControl(this, kDepthX, kDepthY, kDepth, &knob));
+  pGraphics->AttachControl(new IKnobMultiControl(this, kHighFreqX, kHighFreqY, kHighFreq, &knob));
+  pGraphics->AttachControl(new IKnobMultiControl(this, kLowFreqX, kLowFreqY, kLowFreq, &knob));
 
   AttachGraphics(pGraphics);
 
@@ -94,7 +107,6 @@ void CVDMod::OnParamChange(int paramIdx)
       mModProcessorL.setDepth(mDepth);
       mModProcessorR.setDepth(mDepth);
       break;
-
     default:
       break;
   }
