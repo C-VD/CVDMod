@@ -4,7 +4,6 @@ void ModProcessor::process(double* in, double* out, int nsamples) {
 	for (int i = 0; i < nsamples; i++) {
 		// bandpass
 		double bpout;
-		setBandPassFreq(1000);
 		highCutOffFilter.lpass(in, &bpout);
 		lowCutOffFilter.hpass(&bpout, &bpout);
 		nZDelay = lfoStep();
@@ -28,18 +27,22 @@ int ModProcessor::lfoStep() {
 		mLfoPhase -= TWO_PI;
 	}
 	x = sin(mLfoPhase);
-	mLfoPhase += (TWO_PI / mSampleRate);
+	mLfoPhase += (mLfoRate * TWO_PI / mSampleRate);
 
 	return mLfoDepth * x * (Z_BUF_SIZE - 1) / 2 + (Z_BUF_SIZE / 2);
 }
 	
-void ModProcessor::setBandPassFreq(double pCutFreq) {
+void ModProcessor::setHighFreq(double pCutFreq) {
 	double nc = (pCutFreq / mSampleRate);
-	lowCutOffFilter.setNc(nc);
 	highCutOffFilter.setNc(nc);
 	double c = (tan(PI_4 * nc) - 1) / (tan(PI_4 * nc) + 1);
-	lowCutOffFilter.setC(c);
 	highCutOffFilter.setC(c);
+}
+void ModProcessor::setLowFreq(double pCutFreq) {
+	double nc = (pCutFreq / mSampleRate);
+	lowCutOffFilter.setNc(nc);
+	double c = (tan(PI_4 * nc) - 1) / (tan(PI_4 * nc) + 1);
+	lowCutOffFilter.setC(c);
 }
 
 

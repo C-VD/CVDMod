@@ -37,7 +37,7 @@ CVDMod::CVDMod(IPlugInstanceInfo instanceInfo)
   TRACE;
 
   //arguments are: name, defaultVal, minVal, maxVal, step, label
-  GetParam(kRate)->InitDouble("Rate", 50., 0., 100.0, 1.00, "%");
+  GetParam(kRate)->InitDouble("Rate", 5., 0., 20.0, 0.01, "Hz");
   GetParam(kRate)->SetShape(2.);
   GetParam(kDepth)->InitDouble("Depth", 50., 0., 100.0, 1.00, "%");
   GetParam(kDepth)->SetShape(2.);
@@ -63,6 +63,8 @@ CVDMod::CVDMod(IPlugInstanceInfo instanceInfo)
 
   mModProcessorL.setSampleRate(GetSampleRate());
   mModProcessorR.setSampleRate(GetSampleRate());
+
+
 }
 
 CVDMod::~CVDMod() {}
@@ -99,13 +101,28 @@ void CVDMod::OnParamChange(int paramIdx)
   switch (paramIdx)
   {
     case kWet:
-      mWet = GetParam(kWet)->Value() / 200.;
-      mModProcessorL.setWet(mWet);
-      mModProcessorR.setWet(mWet);
+      mLastChengedValue = GetParam(kWet)->Value() / 200.;
+//      mModProcessorL.setWet(mLastChengedValue);
+//      mModProcessorR.setWet(mLastChengedValue);
+    case kRate:
+      mLastChengedValue = GetParam(kRate)->Value();
+      mModProcessorL.setRate(mLastChengedValue);
+      mModProcessorR.setRate(mLastChengedValue);
+      break;
     case kDepth:
-      mDepth = GetParam(kDepth)->Value() / 100;
-      mModProcessorL.setDepth(mDepth);
-      mModProcessorR.setDepth(mDepth);
+      mLastChengedValue = GetParam(kDepth)->Value() / 100;
+      mModProcessorL.setDepth(mLastChengedValue);
+      mModProcessorR.setDepth(mLastChengedValue);
+      break;
+    case kHighFreq:
+      mLastChengedValue = GetParam(kHighFreq)->Value();
+      mModProcessorL.setHighFreq(mLastChengedValue);
+      mModProcessorR.setHighFreq(mLastChengedValue);
+      break;
+    case kLowFreq:
+      mLastChengedValue = GetParam(kLowFreq)->Value();
+      mModProcessorL.setLowFreq(mLastChengedValue);
+      mModProcessorR.setLowFreq(mLastChengedValue);
       break;
     default:
       break;

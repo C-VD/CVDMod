@@ -19,7 +19,7 @@ public:
 
 private:
   double mWet;
-  double mDepth;
+  double mLastChengedValue;
 };
 
 #endif
