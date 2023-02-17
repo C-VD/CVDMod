@@ -7,9 +7,9 @@ void ModProcessor::process(double* in, double* out, int nsamples) {
 		highCutOffFilter.lpass(in, &bpout);
 		lowCutOffFilter.hpass(&bpout, &bpout);
 		nZDelay = lfoStep();
+		if (zRingBufferWritePtr >= Z_BUF_SIZE) zRingBufferWritePtr -= Z_BUF_SIZE;
 		zRingBufferReadPtr = zRingBufferWritePtr - nZDelay;
 		if (zRingBufferReadPtr < 0) zRingBufferReadPtr += Z_BUF_SIZE;
-		if (zRingBufferWritePtr >= Z_BUF_SIZE) zRingBufferWritePtr -= Z_BUF_SIZE;
 		*out = zRingBuffer[zRingBufferReadPtr];
 		zRingBuffer[zRingBufferWritePtr] = bpout;
 		*out = *out * mWetAtt + -*in * mDryAtt;
@@ -29,7 +29,7 @@ int ModProcessor::lfoStep() {
 	x = sin(mLfoPhase);
 	mLfoPhase += (mLfoRate * TWO_PI / mSampleRate);
 
-	return mLfoDepth * x * (Z_BUF_SIZE - 1) / 2 + (Z_BUF_SIZE / 2);
+	return (x + 1) * (mLfoDepth * (Z_BUF_SIZE - 1) / 2) + 1;
 }
 	
 void ModProcessor::setHighFreq(double pCutFreq) {
