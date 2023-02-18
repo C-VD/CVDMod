@@ -11,6 +11,7 @@ enum EParams
   kDepth,
   kHighFreq,
   kLowFreq,
+  kDry,
   kWet,
   kNumParams
 };
@@ -20,14 +21,18 @@ enum ELayout
   kWidth = GUI_WIDTH,
   kHeight = GUI_HEIGHT,
 
-  kRateX = 245,
-  kRateY = 100,
-  kDepthX = 60,
-  kDepthY = 100,
-  kHighFreqX = 245,
-  kHighFreqY = 15,
-  kLowFreqX = 60,
-  kLowFreqY = 15,
+  kRateX = 154,
+  kRateY = 35,
+  kDepthX = 154,
+  kDepthY = 115,
+  kHighFreqX = 57,
+  kHighFreqY = 115,
+  kLowFreqX = 57,
+  kLowFreqY = 35,
+  kDryX = 245,
+  kDryY = 35,
+  kWetX = 245,
+  kWetY = 115,
   kKnobFrames = 60
 };
 
@@ -38,19 +43,25 @@ CVDMod::CVDMod(IPlugInstanceInfo instanceInfo)
 
   //arguments are: name, defaultVal, minVal, maxVal, step, label
   GetParam(kRate)->InitDouble("Rate", 5., 0., 20.0, 0.01, "Hz");
-  GetParam(kRate)->SetShape(2.);
+  GetParam(kRate)->SetShape(1.);
   GetParam(kDepth)->InitDouble("Depth", 50., 0., 100.0, 1.00, "%");
-  GetParam(kDepth)->SetShape(2.);
+  GetParam(kDepth)->SetShape(1.);
   GetParam(kHighFreq)->InitDouble("HighFreq", 1000., 30., 20000.0, 1.00, "Hz");
   GetParam(kHighFreq)->SetShape(2.);
   GetParam(kLowFreq)->InitDouble("LowFreq", 1000., 30., 20000.0, 1.00, "Hz");
   GetParam(kLowFreq)->SetShape(2.);
+  GetParam(kDry)->InitDouble("Dry", 50., 0., 100.0, 0.01, "%");
+  GetParam(kDry)->SetShape(1.);
+  GetParam(kWet)->InitDouble("Wet", 50., 0., 100.0, 0.01, "%");
+  GetParam(kWet)->SetShape(1.);
 
   IGraphics* pGraphics = MakeGraphics(this, kWidth, kHeight);
   pGraphics->AttachBackground(BG_ID, BG_FN);
 
   IBitmap knob = pGraphics->LoadIBitmap(KNOB_ID, KNOB_FN, kKnobFrames);
 
+  pGraphics->AttachControl(new IKnobMultiControl(this, kDryX, kDryY, kDry, &knob));
+  pGraphics->AttachControl(new IKnobMultiControl(this, kWetX, kWetY, kWet, &knob));
   pGraphics->AttachControl(new IKnobMultiControl(this, kRateX, kRateY, kRate, &knob));
   pGraphics->AttachControl(new IKnobMultiControl(this, kDepthX, kDepthY, kDepth, &knob));
   pGraphics->AttachControl(new IKnobMultiControl(this, kHighFreqX, kHighFreqY, kHighFreq, &knob));
@@ -100,10 +111,6 @@ void CVDMod::OnParamChange(int paramIdx)
 
   switch (paramIdx)
   {
-    case kWet:
-      mLastChengedValue = GetParam(kWet)->Value() / 200.;
-//      mModProcessorL.setWet(mLastChengedValue);
-//      mModProcessorR.setWet(mLastChengedValue);
     case kRate:
       mLastChengedValue = GetParam(kRate)->Value();
       mModProcessorL.setRate(mLastChengedValue);
@@ -123,6 +130,16 @@ void CVDMod::OnParamChange(int paramIdx)
       mLastChengedValue = GetParam(kLowFreq)->Value();
       mModProcessorL.setLowFreq(mLastChengedValue);
       mModProcessorR.setLowFreq(mLastChengedValue);
+      break;
+    case kDry:
+      mLastChengedValue = GetParam(kDry)->Value() / 100;
+      mModProcessorL.setDry(mLastChengedValue);
+      mModProcessorR.setDry(mLastChengedValue);
+      break;
+    case kWet:
+      mLastChengedValue = GetParam(kWet)->Value() / 100;
+      mModProcessorL.setWet(mLastChengedValue);
+      mModProcessorR.setWet(mLastChengedValue);
       break;
     default:
       break;

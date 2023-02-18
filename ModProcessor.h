@@ -15,7 +15,8 @@ public:
 	void setLowFreq(double pLowFreq);
 	void setHighFreq(double pHighFreq);
 	inline void setSampleRate(int pSampleRate) { mSampleRate = pSampleRate; };
-	inline void setWet(double pWet) { mWetAtt = pWet; mDryAtt = 1 - pWet; };
+	inline void setDry(double pDry) { mDryAtt = pDry; };
+	inline void setWet(double pWet) { mWetAtt = pWet; };
 	CutOffFilter highCutOffFilter;
 	CutOffFilter lowCutOffFilter;
 private:
