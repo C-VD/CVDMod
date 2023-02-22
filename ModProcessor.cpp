@@ -2,14 +2,21 @@
 
 void ModProcessor::process(double* in, double* out, int nsamples) {
 	for (int i = 0; i < nsamples; i++) {
-		// bandpass
+
+		// Band-pass
 		double bpout;
 		highCutOffFilter.lpass(in, &bpout);
 		lowCutOffFilter.hpass(&bpout, &bpout);
+
+		// Updating LFO and delay time
 		nZDelay = lfoStep();
+
+		// Updating ring buffer pointers
 		if (zRingBufferWritePtr >= Z_BUF_SIZE) zRingBufferWritePtr -= Z_BUF_SIZE;
 		zRingBufferReadPtr = zRingBufferWritePtr - nZDelay;
 		if (zRingBufferReadPtr < 0) zRingBufferReadPtr += Z_BUF_SIZE;
+
+		// Reading data from ring buffer
 		*out = zRingBuffer[zRingBufferReadPtr];
 		zRingBuffer[zRingBufferWritePtr] = bpout;
 		*out = *out * mWetAtt + -*in * mDryAtt;
@@ -44,5 +51,3 @@ void ModProcessor::setLowFreq(double pCutFreq) {
 	double c = (tan(PI_4 * nc) - 1) / (tan(PI_4 * nc) + 1);
 	lowCutOffFilter.setC(c);
 }
-
-
